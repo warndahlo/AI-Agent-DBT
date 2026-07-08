@@ -10,7 +10,7 @@ from roscopter_msgs.msg import Waypoint, State
 from roscopter_msgs.srv import AddWaypoint
 
 # ==============================================================================
-# DEFINITIONS OF THE MAZE ENVIRONMENT (Matched exactly to image_a3bf5a.png)
+# DEFINITIONS OF THE MAZE ENVIRONMENT
 # ==============================================================================
 # Pillars tracked relative to the red (+North) axis pointing up
 OBSTACLES = [
