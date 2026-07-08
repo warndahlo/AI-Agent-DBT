@@ -14,6 +14,7 @@ find_package(Eigen3 REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
+# --- Original Node (Reset to how it should be) ---
 add_executable(rviz_hallway_publisher
   src/rviz_hallway_publisher.cpp)
 target_include_directories(rviz_hallway_publisher
@@ -25,6 +26,25 @@ install(
   TARGETS rviz_hallway_publisher
   DESTINATION lib/${PROJECT_NAME})
 
+# =========================================================================
+# --- Your Brand New Custom Node (No overlaps, completely isolated) ---
+# =========================================================================
+add_executable(custom_maze_node 
+  src/rviz_custom_maze.cpp)
+ament_target_dependencies(custom_maze_node rclcpp visualization_msgs)
+install(
+  TARGETS custom_maze_node
+  DESTINATION lib/${PROJECT_NAME})
+# =========================================================================
+
+add_executable(rviz_arena_publisher src/rviz_arena_publisher.cpp)
+ament_target_dependencies(rviz_arena_publisher rclcpp visualization_msgs)
+
+install(TARGETS
+  rviz_arena_publisher
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 install(
   DIRECTORY resource
   DESTINATION share/${PROJECT_NAME})
@@ -35,6 +55,7 @@ install(
 
 install(PROGRAMS
   scripts/walls_sensor.py
+  scripts/maze_navigator.py
   DESTINATION lib/${PROJECT_NAME})
 
 

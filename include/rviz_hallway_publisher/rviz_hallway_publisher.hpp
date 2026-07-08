@@ -29,7 +29,9 @@ private:
   parameters_callback(const std::vector<rclcpp::Parameter> & parameters);
   void declare_parameters();
 
+  // Core visual builders
   void create_and_publish_hallway();
+  void create_and_publish_stadium_arena(); // <-- Added declaration to fix compile error
   visualization_msgs::msg::Marker create_default_hallway();
   void add_back_wall();
   void publish_model();
