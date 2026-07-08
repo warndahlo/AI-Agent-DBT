@@ -1,5 +1,22 @@
+# Python build and cache artifacts
 __pycache__/
 *.pyc
-*.log
+*.pyo
+*.pyd
 .pytest_cache/
+*.log
+
+# Code Editor configurations
 .vscode/
+.idea/
+*.swp
+*.swo
+
+# C++ Compilation and Build outputs (ROS2 specific)
+build/
+install/
+log/
+.catkin_tools/
+*.o
+*.a
+*.so
