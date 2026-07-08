@@ -2,15 +2,22 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>onboarding_project</name>
-  <version>0.0.0</version>
-  <description>Onboarding Project for MAGICC Lab</description>
-  <maintainer email="jmoore53@byu.edu">Jacob</maintainer>
-  <license>TODO: License declaration</license>
+  <version>1.0.0</version>
+  <description>Dynamic Behavior Trees for Autonomous UAV Navigation (Ollama-DBT) in Obstacle Environments</description>
+  <maintainer email="owarndah@byu.edu">Ole Warndahl</maintainer>
+  <license>MIT</license>
 
+  <depend>rclcpp</depend>
   <depend>rclpy</depend>
-  <exec_depend>python3</exec_depend>
+  
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>rosflight_msgs</depend>
 
-  <buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>python3</exec_depend>
+  <exec_depend>python3-py-trees</exec_depend>
+  <exec_depend>python3-requests</exec_depend> <buildtool_depend>ament_cmake</buildtool_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
