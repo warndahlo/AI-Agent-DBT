@@ -63,7 +63,3 @@ ros2 launch ai_agent_dbt rviz.launch.py
 Step 2: Trigger Autonomous Execution Trees
 Run the adaptive LLM-mutating stadium navigation script:
 ros2 run ai_agent_dbt BT_Ollama_maze_navigator.py
-
-
-└── resource/
-    └── maeserstatue_small.stl     # Goal target visual asset model mesh
