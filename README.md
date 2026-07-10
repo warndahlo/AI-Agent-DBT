@@ -37,5 +37,33 @@ ai_agent_dbt/
 ├── scripts/
 │   ├── BT_maze_navigator.py       # LLM Behavior Tree Adaptor script
 │   └── BT_Ollama_maze_navigator.py# Box-Arena Obstacle Avoidance router script
+
+##Prerequisites
+Ensure your host target machine runs Ubuntu 22.04 LTS with ROS 2 Humble Geochelone and your local rosflight workspace is configured.
+Familiarity or completion of onboarding_project(insert link to repo)
+
+Execute the following on the host machine to pull the lightweight, fast-inference semantic modeling nodes:
+curl -fsSL [https://ollama.com/install.sh](https://ollama.com/install.sh) | sh
+ollama run llama3.2:1b
+
+Python SDK Dependencies:
+pip install --upgrade openai py-trees
+
+Workspace Compilation:
+cd ~/rosflight_ws/src
+git clone [https://github.com/owarndahl/ai_agent_dbt.git](https://github.com/owarndahl/ai_agent_dbt.git)
+cd ~/rosflight_ws
+colcon build --packages-select ai_agent_dbt --symlink-install
+source install/setup.bash
+
+##Operational Execution Guide
+Step 1: Launch the Virtual Environment:
+ros2 launch ai_agent_dbt rviz.launch.py
+
+Step 2: Trigger Autonomous Execution Trees
+Run the adaptive LLM-mutating stadium navigation script:
+ros2 run ai_agent_dbt BT_Ollama_maze_navigator.py
+
+
 └── resource/
     └── maeserstatue_small.stl     # Goal target visual asset model mesh
