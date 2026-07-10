@@ -13,6 +13,7 @@ def generate_launch_description():
         name='walls_sensor',
         output='screen',
     )
+    
     walls_publisher_node = Node(
         package='onboarding_project',
         executable='rviz_hallway_publisher',
@@ -20,8 +21,16 @@ def generate_launch_description():
         output='screen',
     )
 
+    # ADDED: This kicks off the actual AI behavior tree routing loop
+    ai_bt_agent_node = Node(
+        package='onboarding_project',
+        executable='BT_Ollama_maze_navigator.py',
+        name='bt_ollama_master_navigator',
+        output='screen',
+    )
+
     return LaunchDescription([
         walls_sensor_node,
         walls_publisher_node,
+        ai_bt_agent_node, # Included in the launch sequence
     ])
-
