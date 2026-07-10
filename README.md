@@ -1,77 +1,54 @@
-# MAGICC Lab Onboarding Project
+Dynamic Behavior Trees for Autonomous UAV Navigation (Ollama-DBT)
+An advanced autonomous multi-rotor navigation framework implementing Runtime Adaptive Behavior Trees (DBT). The system enables real-time tactical trajectory generation through tightly confined spaces and obstacle fields using two distinct paradigms: non-blocking Large Language Model (LLM) semantic reasoning over local containerized APIs, and high-frequency deterministic Geometric Vector Interception Engine calculations.
+System Architecture & Core Concept
+Standard robotic architectures handle autonomy using rigid, predefined state machines or static Behavior Trees. While predictable, they struggle with structural variations or unexpected configuration blocks.
+This repository implements a Mutator Pattern using py_trees. The system instantiates a low-frequency supervisor node that takes live situational data from the drone's blackboard, runs logic models, prunes out old execution paths, and grafts newly constructed action sub-trees into the running master root structure at runtime without dropping multi-rotor flight stabilization loops.
+The workspace features two primary operational navigation modes designed for autonomous UAV testing:
+1. Semantic Labyrinth Reasoning Mode (BT_maze_navigator.py)
+    • • The Problem: Navigating blind structural corridors where standard sensor ranges are blocked by immediate right-angle blind corners.
+    • • The AI Mechanism: When the drone approaches a wall bounding box (d < 4.2m), the system pauses execution and queries a containerized Ollama Llama3 instance via a local Docker network bridge. It translates raw distance measurements into a clean semantic markdown prompt detailing current directional trends and bounding clearances.
+    • • Tree Mutation: The LLM responds with a single, highly deterministic navigation vector direction (north, east, south, west). Upon receiving this prediction, the master tree coordinator dynamically generates a new instance of DynamicWaypointAction, safely mutates the execution graph, and dispatches an asynchronous target vector request to the autopilot track manager.
+2. High-Speed Geometric Obstacle Avoidance Mode (BT_Ollama_maze_navigator.py)
+    • • The Problem: Safely routing targets inside stadium spaces cluttered with massive column pillar obstacles without incurring the latency or non-deterministic risk of network API queries.
+    • • The Mathematical Mechanism: This engine runs a high-frequency line-segment to circular-cylinder interception pipeline. It continuously maps the drone's localized vector trajectory relative to localized pillar coordinates.
+    • • Deterministic Avoidance: By taking the vector dot product, it calculates a clamped projection tracking step. If the shortest path clearance drops below the pillar's localized physical constraint radius, the system applies a dynamic perpendicular safety offset margin (robs + 6.0m), instantly generating structural detours on the fly while tracking target checkpoints with full state validation.
+Package Structure
+ai_agent_dbt/
+├── CMakeLists.txt                  # Build system definition configuration
+├── package.xml                     # C++/Python dependency configuration
+├── launch/
+│   └── rviz.launch.py              # Central layout deployment configuration
+├── src/
+│   ├── rviz_arena_publisher.cpp    # Enclosure boundary visualization manager
+│   ├── rviz_custom_maze.cpp        # Structural hallway visualization generator
+│   └── rviz_hallway_publisher.cpp  # Dual-mode terrain visualizer node
+├── scripts/
+│   ├── BT_maze_navigator.py        # LLM Behavior Tree Adaptor script
+│   └── BT_Ollama_maze_navigator.py # Geometric Vector Obstacle Avoidance script
+└── resource/
+    └── maeserstatue_small.stl      # Goal target visual asset model mesh
+Installation & Replication Setup
+Prerequisites: Ensure your host target machine runs Ubuntu 22.04 LTS with ROS 2 Humble Geochelone and your local rosflight workspace configured.
+1. Download Local LLM Engine
+Execute the following to pull your background semantic modeling nodes:
+curl -fsSL https://ollama.com/install.sh | sh
+ollama run llama3
+[NOTE] Verify that your local API interface binds correctly to port 11434. If running ROS 2 inside an isolated container environment, update the base_url parameter inside your python nodes to reference your system network bridge gateway.
 
-Welcome! This repository contains an onboarding project designed to introduce you to the tools, workflows, and concepts used in the MAGICC Lab.
+2. Python SDK Dependencies
+pip install --upgrade openai py-trees
+3. Workspace Compilation
+cd ~/rosflight_ws/src
+git clone https://github.com/owarndahl/ai_agent_dbt.git
+cd ~/rosflight_ws
+colcon build --packages-select ai_agent_dbt --symlink-install
+source install/setup.bash
+Operational Execution Guide
+Step 1: Launch the Virtual Environment
+ros2 launch ai_agent_dbt rviz.launch.py
+Step 2: Trigger Autonomous Execution Trees
+Deterministic Vector Tracking Mode:
+ros2 run ai_agent_dbt BT_Ollama_maze_navigator.py
 
-## Purpose
-This is a fun, hands-on project that typically takes about 2 weeks to complete. It's designed for prospective students and volunteers who want to learn what we do in the MAGICC lab—no prior autopilot or robotics experience required!
-
-> [!NOTE]
-> **Time Estimate:** Approximately 2 weeks if you spend 10 hours/week. This estimate assumes you have some coding experience (Python or C++) but are new to our lab's tools and workflows.
-> If you have less time available each week, adjust your timeline accordingly. Don't rush—learning these concepts thoroughly is more important than speed!
-
-### What You'll Learn
-
-By completing this project, you will:
-
-* **Gain hands-on experience with:**
-  * [ROS 2](https://docs.ros.org/en/humble/index.html) – A robotics middleware framework used widely in research and industry
-  * `git` – Version control for collaborative software development
-  * Python or C++ – Your choice for implementing the controller
-  * Linux – The operating system environment used in robotics research
-  * (optional) Docker – Containerization for reproducible development environments
-* **Set up ROSflight** – Install and configure an autopilot system and simulator on your computer
-* **Build a real controller** – Write your own ROS 2 node to autonomously navigate a simulated quadrotor
-* **Have fun!** – Solve a challenge, compete on the leaderboard, and gain practical skills
-
-> [!NOTE]
-> **What is ROSflight?**
-> [ROSflight](https://docs.rosflight.org) is an open-source autopilot built from scratch here in the MAGICC lab. Unlike many commercial autopilots, ROSflight is designed to be understandable and extensible, making it ideal for learning about drone control, estimation, and autopilot design.
->
-> In this project, you'll install ROSflight and its companion simulator, then write code to control a virtual quadrotor. This mirrors the workflow researchers use to develop and test new algorithms before flying real hardware.
-
-## The Mission
-
-![Image of the maze to solve](docs/assets/maze.png)
-
-Mr. Karl Maeser has unfortunately found himself stuck inside a chalk circle, and hasn't been able to find any BYU Creamery chocolate milk for days!
-He is located at the end of a hallway, unable to move.
-
-Luckily, you happen to have a quadrotor that just happens to have a case of BYU Creamery chocolate milk already loaded up.
-Your assignment is to deliver the goods to Mr. Maeser as quick as you can.
-But watch out!
-Hit any walls and your quadrotor will crash (not shown)!
-
-#### Your Task:
-Design and implement a controller that:
-- Autonomously navigates through the simulated hallway
-- Avoids collisions with all walls
-- Reaches Mr. Maeser's location efficiently
-
-#### Deliverables:
-- A video link of your quadrotor completing the mission (screen recording, uploaded to YouTube or similar)
-- The minimum distance to the walls and completion time from your run (automatically computed by this package)
-- A link to your forked repository with your solution code
-
-## Getting Started
-
-1. Follow the [project instructions](docs/project-instructions.md) to complete your project.
-2. After successfully getting Mr. Maeser his goods, [submit your results to the leaderboard](docs/leaderboard-instructions.md).
-
-## Leaderboard
-Ranked list of successful solutions.
-Solutions are ranked by
-
-$$\text{Score} = \frac{\text{Minimum Distance From Walls (m)}}{\text{Time (s)}}$$
-
-**Higher scores are better!** This means:
-- Staying farther from walls (safer flight) increases your score
-- Completing the mission faster also increases your score
-- You need to balance speed and safety for the best ranking
-
-<!-- LEADERBOARD:START -->
-<!-- The leaderboard below is automatically generated. Do not edit manually. -->
-| Rank | Name | Minimum distance from walls (m) | Best time (s) | GitHub | Video Link |
-|------|------|------------------|----------------|---------|----------|
-| 1 | Cosmo | 2.5 | 44.5 | [repo](https://github.com/byu-magicc/onboarding_project) | [video](https://youtu.be/GJZMzQYB5zI) |
-
-<!-- LEADERBOARD:END -->
+Adaptive LLM Tree Mutation Mode:
+ros2 run ai_agent_dbt BT_maze_navigator.py
