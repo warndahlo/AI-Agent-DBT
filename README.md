@@ -1,26 +1,24 @@
 # Dynamic Behavior Trees for Autonomous UAV Navigation (Ollama-DBT)
 
-An advanced autonomous multi-rotor navigation framework implementing Runtime Adaptive Behavior Trees (DBT). The system enables real-time tactical trajectory generation through tightly confined spaces and obstacle fields using two distinct paradigms: non-blocking Large Language Model (LLM) semantic reasoning over local containerized APIs, and high-frequency deterministic Geometric Vector Interception Engine calculations.
+An advanced autonomous multi-rotor navigation framework implementing Runtime Adaptive Behavior Trees (DBT) inside containerized environments. The system enables real-time tactical trajectory generation through bounded arenas and obstacle fields by combining high-frequency safety checks with local, non-blocking Large Language Model (LLM) semantic spatial reasoning.
 
 ---
 
 ## System Architecture & Core Concept
 
-Standard robotic architectures handle autonomy using rigid, predefined state machines or static Behavior Trees. While predictable, they struggle with structural variations or unexpected configuration blocks. 
+Standard robotic architectures handle autonomy using rigid, predefined state machines or static Behavior Trees. While predictable, they struggle with dynamically shifting obstacle environments.
 
-This repository implements a **Mutator Pattern** using `py_trees`. The system instantiates a low-frequency supervisor node that takes live situational data from the drone's blackboard, runs logic models, prunes out old execution paths, and grafts newly constructed action sub-trees into the running master root structure at runtime without dropping multi-rotor flight stabilization loops.
+This repository implements a **Mutator Pattern** using `py_trees`. The system instantiates a low-frequency supervisor node that tracks live positional telemetry from the drone's blackboard. When a nearby obstacle constraint threatens the path, the supervisor drops flight velocity, prunes the old execution pathway, and grafts a newly constructed local AI action detour sub-tree directly into the running master root structure at runtime—all without breaking the underlying multi-rotor flight stabilization loops.
 
-The workspace features two primary operational navigation modes designed for autonomous UAV testing:
+---
 
-### 1. Semantic Labyrinth Reasoning Mode (`BT_maze_navigator.py`)
-* **The Problem:** Navigating blind structural corridors where standard sensor ranges are blocked by immediate right-angle blind corners.
-* **The AI Mechanism:** When the drone approaches a wall bounding box ($d < 4.2\text{m}$), the system pauses execution and queries a containerized Ollama Llama3 instance via a local Docker network bridge. It translates raw distance measurements into a clean semantic markdown prompt detailing current directional trends and bounding clearances.
-* **Tree Mutation:** The LLM responds with a single, highly deterministic navigation vector direction (`north`, `east`, `south`, `west`). Upon receiving this prediction, the master tree coordinator dynamically generates a new instance of `DynamicWaypointAction`, safely mutates the execution graph, and dispatches an asynchronous target vector request to the autopilot track manager.
+## Operational Navigation Engine
 
-### 2. High-Speed Geometric Obstacle Avoidance Mode (`BT_Ollama_maze_navigator.py`)
-* **The Problem:** Safely routing targets inside stadium spaces cluttered with massive column pillar obstacles without incurring the latency or non-deterministic risk of network API queries.
-* **The Mathematical Mechanism:** This engine runs a high-frequency line-segment to circular-cylinder interception pipeline. It continuously maps the drone's localized vector trajectory relative to localized pillar coordinates.
-* **Deterministic Avoidance:** By taking the vector dot product, it calculates a clamped projection tracking step. If the shortest path clearance drops below the pillar's localized physical constraint radius, the system applies a dynamic perpendicular safety offset margin ($r_{\text{obs}} + 6.0\text{m}$), instantly generating structural detours on the fly while tracking target checkpoints with full state validation.
+### Stadium Obstacle Routing Mode (`BT_Ollama_maze_navigator.py`)
+* **The Problem:** Safely routing targets inside bounded, box-like spaces cluttered with massive column pillar obstacles.
+* **The AI Mechanism:** When the drone's proximity sensor flag triggers an early threshold check near an obstacle boundary, the system applies a brief stabilization dampener and queries a local containerized **Ollama Llama 3.2 (1-Billion Parameter)** instance over the internal docker network bridge bridge (`http://172.17.0.1:11434/v1`). 
+* **The Prompt Pipeline:** Raw coordinates and object radii are compiled into a strict semantic navigation prompt detailing active tracking checkpoints and the blocking entity's bounding parameters.
+* **Tree Mutation:** The `llama3.2:1b` engine returns a singular, highly deterministic spatial resolution vector (`north`, `east`, `south`, or `west`). Upon reading this token, the supervisor calculates a perpendicular safety offset margin ($r_{\text{obs}} + 12.0\text{m}$), dynamically generates a new instance of `DynamicWaypointAction`, safely mutates the running execution tree, and dispatches an asynchronous bypass path request to the flight autopilot.
 
 ---
 
@@ -38,6 +36,6 @@ ai_agent_dbt/
 │   └── rviz_hallway_publisher.cpp # Dual-mode terrain visualizer node
 ├── scripts/
 │   ├── BT_maze_navigator.py       # LLM Behavior Tree Adaptor script
-│   └── BT_Ollama_maze_navigator.py# Geometric Vector Obstacle Avoidance script
+│   └── BT_Ollama_maze_navigator.py# Box-Arena Obstacle Avoidance router script
 └── resource/
     └── maeserstatue_small.stl     # Goal target visual asset model mesh
