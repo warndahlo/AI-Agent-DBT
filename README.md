@@ -37,8 +37,9 @@ ai_agent_dbt/
 ├── scripts/
 │   ├── BT_maze_navigator.py       # LLM Behavior Tree Adaptor script
 │   └── BT_Ollama_maze_navigator.py# Box-Arena Obstacle Avoidance router script
+```
 
-##Prerequisites
+## Prerequisites
 Ensure your host target machine runs Ubuntu 22.04 LTS with ROS 2 Humble Geochelone and your local rosflight workspace is configured.
 Familiarity or completion of onboarding_project(insert link to repo)
 
@@ -56,7 +57,7 @@ cd ~/rosflight_ws
 colcon build --packages-select ai_agent_dbt --symlink-install
 source install/setup.bash
 
-##Operational Execution Guide
+## Operational Execution Guide
 Step 1: Launch the Virtual Environment:
 ros2 launch ai_agent_dbt rviz.launch.py
 
