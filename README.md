@@ -1,14 +1,12 @@
-# Dynamic Behavior Trees for Autonomous UAV Navigation (Ollama-DBT)
+# Dynamic Behavior Trees for Autonomous UAV Navigation
 
-An advanced autonomous multi-rotor navigation framework implementing Runtime Adaptive Behavior Trees (DBT) inside containerized environments. The system enables real-time tactical trajectory generation through bounded arenas and obstacle fields by combining high-frequency safety checks with local, non-blocking Large Language Model (LLM) semantic spatial reasoning.
+This is a proof of concept for an Unmanned Aerial Vehicle (UAV) controlled by an LLM within a Behavior Tree Structure.
 
 ---
 
 ## System Architecture & Core Concept
 
-Standard robotic architectures handle autonomy using rigid, predefined state machines or static Behavior Trees. While predictable, they struggle with dynamically shifting obstacle environments.
-
-This repository implements a **Mutator Pattern** using `py_trees`. The system instantiates a low-frequency supervisor node that tracks live positional telemetry from the drone's blackboard. When a nearby obstacle constraint threatens the path, the supervisor drops flight velocity, prunes the old execution pathway, and grafts a newly constructed local AI action detour sub-tree directly into the running master root structure at runtime—all without breaking the underlying multi-rotor flight stabilization loops.
+A pre-defined behavior tree calls on an LLM (llama3.2 1b) to then choose between a set of pre-defined sub-trees to create waypoints to avoid obstacles. 
 
 ---
 
@@ -39,25 +37,30 @@ ai_agent_dbt/
 │   └── BT_Ollama_maze_navigator.py# Box-Arena Obstacle Avoidance router script
 ```
 
-## Prerequisites
-Ensure your host target machine runs Ubuntu 22.04 LTS with ROS 2 Humble Geochelone and your local rosflight workspace is configured.
-Familiarity or completion of onboarding_project(insert link to repo)
+## Installation
+Follow the ROSflight tutorials at [rosflight.org](rosflight.org) to set up a rosflight workspace and ensure that you can fly waypoints with a multirotor in rosflight_sim.
 
-Execute the following on the host machine to pull the lightweight, fast-inference semantic modeling nodes:
-curl -fsSL [https://ollama.com/install.sh](https://ollama.com/install.sh) | sh
+If you are using a GPU it is reccomended that you ensure GPU passthrough is working, this will improve the speed of the model.
+
+Execute the following on the host machine to install ollama and pull llama3.2 1b:
+```
+// If you don't have zstd you will need to install it with:
+sudo apt-get install zstd
+
+//Install and run llama3.2:1b
+curl -fsSL https://ollama.com/install.sh | sh
 ollama run llama3.2:1b
+```
 
-Python SDK Dependencies:
-pip install --upgrade openai py-trees
+#### Python SDK Dependencies:
 
-Workspace Compilation:
-cd ~/rosflight_ws/src
-git clone [https://github.com/owarndahl/ai_agent_dbt.git](https://github.com/owarndahl/ai_agent_dbt.git)
-cd ~/rosflight_ws
-colcon build --packages-select ai_agent_dbt --symlink-install
-source install/setup.bash
+To install py_trees call `pip install py_trees`. More information about py_trees can be found [here](https://py-trees.readthedocs.io/en/devel/introduction.html).
 
-## Operational Execution Guide
+#### Workspace Compilation:
+
+Clone this repository into your rosflight workspace. We recommend cloning it into your `rosflight_ws/src` directory so it integrates with your ROS 2 workspace.
+
+## Quick Start Guide
 Step 1: Launch the Virtual Environment:
 ros2 launch ai_agent_dbt rviz.launch.py
 
