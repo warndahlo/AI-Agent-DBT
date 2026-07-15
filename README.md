@@ -8,6 +8,8 @@ This is a proof of concept for an Unmanned Aerial Vehicle (UAV) controlled by an
 
 A pre-defined behavior tree calls on an LLM (llama3.2 1b) to then choose between a set of pre-defined sub-trees to create waypoints to avoid obstacles. 
 
+[Video Example](https://drive.google.com/file/d/1iiO69vEuZ35xmpbXOVsUuDfqjPxfFVYO/view?usp=sharing​)
+
 ---
 
 ## Operational Navigation Engine
@@ -27,7 +29,7 @@ ai_agent_dbt/
 ├── CMakeLists.txt                 # Build system definition configuration
 ├── package.xml                    # C++/Python dependency configuration
 ├── launch/
-│   └── rviz.launch.py             # Central layout deployment configuration
+│   └── ai_agent_dbt.launch.py     # Central layout deployment configuration
 ├── src/
 │   ├── rviz_arena_publisher.cpp   # Enclosure boundary visualization manager
 │   ├── rviz_custom_maze.cpp       # Structural hallway visualization generator
@@ -58,11 +60,25 @@ To install py_trees call `pip install py_trees`. More information about py_trees
 
 #### Workspace Compilation:
 
-Clone this repository into your rosflight workspace. We recommend cloning it into your `rosflight_ws/src` directory so it integrates with your ROS 2 workspace.
+Clone this repository into your rosflight workspace. We recommend cloning it into your `rosflight_ws/src` directory so it integrates with your ROS 2 workspace. After that you will need to call `colcon build` and then source your terminal(s) with `source /rosflight_ws/install/setup.bash` (or `source /rosflight_ws/install/setup.zsh` if you are using zsh).
 
 ## Quick Start Guide
-Step 1: Launch the Virtual Environment:
-ros2 launch ai_agent_dbt rviz.launch.py
+
+#### Step 1: Launch the Virtual Environment:
+
+```
+// Launch rosflight_sim 
+ros2 launch rosflight_sim multirotor_standalone.launch.py
+// In a second terminal, launch ai_agent_dbt
+ros2 launch ai_agent_dbt ai_agent_dbt.launch.py
+```
+
+Load the config file to see the environment:
+
+1. In the RViz window, click **File → Open Config**
+2. Navigate to the `resource/` directory of this repository
+3. Select `ai_agent_dbt_rviz_config.rviz`
+4. The walls, goals, and obstacles should load in
 
 Step 2: Trigger Autonomous Execution Trees
 Run the adaptive LLM-mutating stadium navigation script:
