@@ -52,7 +52,6 @@ install(
 # CRITICAL FIX: Registered your baseline and hybrid behavior tree navigation scripts
 install(PROGRAMS
   scripts/walls_sensor.py
-  scripts/maze_navigator.py
   scripts/BT_maze_navigator.py
   scripts/BT_Ollama_maze_navigator.py
   DESTINATION lib/${PROJECT_NAME})

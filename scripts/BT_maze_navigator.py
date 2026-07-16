@@ -132,7 +132,7 @@ class DynamicMazeRouter(py_trees.behaviour.Behaviour):
             try:
                 self.node.get_logger().info("Querying Llama3...")
                 response = self.ai_client.chat.completions.create(
-                    model="llama3",
+                    model="llama3.2:1b",
                     messages=[{"role": "user", "content": prompt}],
                     temperature=0.0  
                 )

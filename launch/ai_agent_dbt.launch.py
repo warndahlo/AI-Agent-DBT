@@ -8,14 +8,14 @@ from launch_ros.actions import Node
 def generate_launch_description():
 
     walls_sensor_node = Node(
-        package='onboarding_project',
+        package='ai_agent_dbt',
         executable='walls_sensor.py',
         name='walls_sensor',
         output='screen',
     )
     
     walls_publisher_node = Node(
-        package='onboarding_project',
+        package='ai_agent_dbt',
         executable='rviz_hallway_publisher',
         name='rviz_hallway_publisher',
         output='screen',
@@ -23,7 +23,7 @@ def generate_launch_description():
 
     # ADDED: This kicks off the actual AI behavior tree routing loop
     ai_bt_agent_node = Node(
-        package='onboarding_project',
+        package='ai_agent_dbt',
         executable='BT_Ollama_maze_navigator.py',
         name='bt_ollama_master_navigator',
         output='screen',
