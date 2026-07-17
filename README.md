@@ -1,21 +1,25 @@
-# Dynamic Behavior Trees for Autonomous UAV Navigation
+# Dynamic Behavior Trees for UAV Navigation
 
-This is a proof of concept for an Unmanned Aerial Vehicle (UAV) controlled by an LLM within a Behavior Tree Structure. The UAV is tasked with navigating an arena and hit 3 waypoints without hitting any obstacles.
+This is a proof of concept for an Unmanned Aerial Vehicle (UAV) controlled by an LLM within a behavior tree (BT) structure. ROSflight is used for simulation and autonomous waypoint navigation. The UAV is tasked with navigating an arena and hit 3 waypoints without hitting any obstacles.
 
 ## System Architecture & Core Concept
 
-A pre-defined behavior tree calls on an LLM (llama3.2 3b) to then use a pre-defined sub-tree to create waypoints to avoid obstacles. The idea is that in a more robust implementation an LLM could choose between a set of behavior trees to choose the best behavior given a complex situation.
+A pre-defined BT calls on an LLM (llama3.2 3b) to use a pre-defined sub-tree to create waypoints to avoid obstacles. The idea is that in a more complex implementation, an LLM could choose between a set of BTs to choose the best behavior in a given situation.
 
 The environment consists of box that confines the UAV, containing 3 goals for the UAV to reach. There are 3 obstacles in the environment that the UAV must avoid to successfully complete the challange.
 
-[Video Demonstration](https://drive.google.com/file/d/1iiO69vEuZ35xmpbXOVsUuDfqjPxfFVYO/view?usp=sharing​)
+[Video Demonstration]
+
+[Video Demonstration of no LLM](https://drive.google.com/file/d/1iiO69vEuZ35xmpbXOVsUuDfqjPxfFVYO/view?usp=sharing​)
+
+As you can see, the LLM implementation of this concept doesn't function well, but the structure of the program in `BT_Ollama_waypoint_navigator` serves as an example of how a dynamic behavior tree could use an LLM to make decisions. 
 
 ## Installation
 Follow the ROSflight tutorials at [rosflight.org](rosflight.org) to set up a rosflight workspace and ensure that you can fly waypoints with a multirotor in rosflight_sim.
 
-If you are using a GPU it is reccomended that you ensure GPU passthrough is working, this will improve the speed of the model.
+If you have a GPU, it is reccomended that you ensure GPU passthrough is working, this will improve the speed of the model.
 
-Execute the following on the host machine to install ollama and pull llama3.2 3b:
+Execute the following on the host machine to install ollama:
 
 ```bash
 # If you don't have zstd you will need to install it with:
@@ -81,9 +85,43 @@ ai_agent_dbt/
 │   ├── rviz_arena_publisher.cpp       # Enclosure boundary visualization manager
 │   └── rviz_hallway_publisher.cpp     # Dual-mode terrain visualizer node
 ├── scripts/
-│   ├── BT_waypoint_navigator.py       # Script that uses only Behavior Trees to reach the goals
-│   └── BT_Ollama_waypoint_navigator.py# Script that uses an LLM to reach the goals
+│   ├── BT_waypoint_navigator.py       # Script that uses only Behavior Trees to reach the targets
+│   └── BT_Ollama_waypoint_navigator.py# Script that uses an LLM to reach the targets
 ```
 
 ## BT_Ollama_waypoint_navigator.py flow
 
+A ROS2 node named `DBT_AI_Nav` is constructed and then spun in `main` at the bottom of the program. It constructs the BTs and set ups the elements necessary for it to run. At the top of the program the locations of the targets and obstacles are listed. This does NOT control the locations of the targets and obstacles, it simply serves as information for the rest of the program. To change the layout of the environment you would need to alter `rviz_hallway_publisher.cpp`. The leaf nodes of the BT are designed in the py_trees sturcture in classes above this node, in the order they are listed below (keep in mind that the composite nodes don't need defined behaviors, they are just instantiated in the "setup" functions in `DBT_AI_NAV`). The `query_llm` function after the BT classes contains the parameters for the LLM.
+
+### Behavior Tree Structure:
+
+#### Main Tree
+
+```text
+root (sequence) [→]
+├── Check Pos
+└── Find Waypoint (selector) [?]
+    ├── AI Waypoint
+    |      └── *executes sub_tree*
+    └── Geometric Waypoint
+           └── *executes sub_tree*
+```
+
+The `root` node of the main tree starts with the `Check Pos` node that compares the current location of the UAV to it's current goal location (stored in `next_north` and `next_east`). If the UAV reaches a target at any point it increments the target to the next one in the list. When the UAV reaches the location of the current waypoint `Check Pos` returns `SUCCESS` and the root node moves on to the `Find Waypoint` selector node. First the `Find Waypoint` node attempts to run the `AI Waypoint` node. If it succeeds it returns `SUCCESS`. If it fails `Find Waypoint` moves on to `Geometric Waypoint` which attempts to create a waypoint using the calculation in the `calculate_safe_vector` function. When it does it returns `SUCCESS`. Either of these nodes succeeding causes `Find Waypoint` to return `SUCCESS`. This means that all nodes belonging to the root succeed, and the BT succeeds, starting over again.
+
+#### Sub Tree
+
+```text
+way_tree (sequence) [→]
+└── Create Waypoint
+```
+
+The sub tree is constructed by `DBT_AI_Nav`, but is not ticked by it, remaining dormant until it is ticked. When `AI Waypoint` or `Geometric Waypoint` is ready to create a waypoint it calls `sub_tree.tick()` which runs the `Create Waypoint` node.
+
+## Problems and Next Steps
+
+The main problem with this example is the limitations of a small LLM like Llama 3.2 3b. It simply can't keep track of all the obstacles and goals, and isn't actually capable of comprehending the scenario in full. A more robust model is likely to be able to navigate the situation easily, but this takes longer and requires more overhead and cost.
+
+In this scenario a deterministic algorithm is far better suited, but the structure of this code serves as a starting point for incorporating artificial intelligence and dynamic behavior trees together in a broader context. One of the advantages of using AI to control an agent like a UAV is it's ability to react to unexpected changes. With more development, the structure proposed here, or one similar to it, could be used in that context.
+
+There are directions to be explored with how the AI is incorporated in the BT structure serving different purposes like processing human input, managing a swarm of UAVs, etc. Training a model for a given environment is also likely to give better results. 

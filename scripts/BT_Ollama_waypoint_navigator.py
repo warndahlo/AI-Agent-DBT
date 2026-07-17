@@ -14,15 +14,15 @@ from roscopter_msgs.srv import AddWaypoint
 
 NodeName = 'dbt_ai_nav'
 
-# DEFINITIONS OF THE MAZE ENVIRONMENT
-# Pillars tracked relative to the red (+North) axis pointing up
+# Definitions of the environment
+# Obstacles
 OBSTACLES = [
     {"name": "Top Center Pillar",    "N": 25.0,  "E": 0.0,   "radius": 13.0},
     {"name": "Middle Right Pillar",  "N": 5.0,   "E": 20.0,  "radius": 13.0},
     {"name": "Bottom Center Pillar", "N": -20.0, "E": 5.0,   "radius": 13.0}
 ]
 
-# Checkpoint coordinates mapped directly from the screen visual layout
+# Target waypoints
 TARGET_WAYPOINTS = [
     {"N": -45.0, "E": 35.0,  "U": -5.0}, # Checkpoint A (Lower Right - Red)
     {"N": 15.0,  "E": -35.0, "U": -5.0}, # Checkpoint B (Middle Left - Orange)
@@ -42,6 +42,7 @@ class CheckPos(py_trees.behaviour.Behaviour):
         self.node.get_logger().info('Checking Position...')
 
     def update(self) -> py_trees.common.Status:
+        # If the next target location is reached, move on the next target
         target = TARGET_WAYPOINTS[self.node.idx]
         if ((self.node.curr_north < (target["N"] + self.dist_thresh)) and 
             (self.node.curr_north > (target["N"] - self.dist_thresh)) and 
@@ -50,9 +51,12 @@ class CheckPos(py_trees.behaviour.Behaviour):
 
             self.node.get_logger().info('Reached Goal')
             self.node.idx += 1
+            # If all targets have been reached, end the program
             if (self.node.idx > len(TARGET_WAYPOINTS)):
                 self.node.get_logger().info('Mission Complete!')
+                raise KeyboardInterrupt
 
+        # Return RUNNING until the next waypoint is reached
         if ((self.node.curr_north < (self.node.next_north + self.dist_thresh)) and 
             (self.node.curr_north > (self.node.next_north - self.dist_thresh)) and 
             (self.node.curr_east < (self.node.next_east + self.dist_thresh)) and 
@@ -73,6 +77,7 @@ class AIWaypoint(py_trees.behaviour.Behaviour):
         self.task_completed = False
     
     def initialise(self) -> None:
+        # Create a prompt for the LLM
         self.node.get_logger().info('Starting background Ollama query...')
         target = TARGET_WAYPOINTS[self.node.idx]
         prompt = (
@@ -84,12 +89,11 @@ class AIWaypoint(py_trees.behaviour.Behaviour):
             f"  2. {OBSTACLES[1]['N']}, {OBSTACLES[1]['E']}\n"
             f"  3. {OBSTACLES[2]['N']}, {OBSTACLES[2]['E']}\n\n"
             f"INSTRUCTIONS:\n"
-            f"1. Before outputting coordinates, use <thought> tags to calculate the rough direction of the goal.\n"
-            f"2. Check if a straight line to the goal passes within 10 units of any obstacle.\n"
-            f"3. If the path is blocked, pick a waypoint that moves towards the goal moving several units.\n"
-            f"4. IMPORTANT: Output your final decision in exactly this format with nothing but the raw coordinates within the <coord> tags.\n\n"
+            f"1. Check if a straight line to the goal passes within 10 units of any obstacle.\n"
+            f"2. If the path is blocked, pick a waypoint that moves towards the goal moving several units. If it is not blocked, output the goal coordinates.\n"
+            f"3. IMPORTANT: Output your final decision in exactly this format with nothing but the raw coordinates within the <coord> tags.\n\n"
             f"EXAMPLE:\n"
-            f"<thought>The goal is North-East. A straight line puts me too close to Obstacle 1. I need to route further East first to go around it.</thought>\n"
+            f"The goal is North-East. A straight line puts me too close to Obstacle 1. I need to route further East first to go around it.\n"
             f"<coord>10,25</coord>\n\n"
             f"Now, generate your response for the current location:"
         )
@@ -171,6 +175,7 @@ class GeoWaypoint(py_trees.behaviour.Behaviour):
 
     def update(self) -> py_trees.common.Status:
         final_target = TARGET_WAYPOINTS[self.node.idx]
+        # Calculate an optimal location for the next waypoint
         self.node.next_north, self.node.next_east, is_detour = calculate_safe_vector(
             self.node.curr_north, self.node.curr_east, final_target["N"], final_target["E"], OBSTACLES
         )
@@ -231,6 +236,7 @@ class CreateWaypoint(py_trees.behaviour.Behaviour):
 # Query Ollama for a response
 def query_llm(self, prompt):
     try:
+        # Parameters for LLM
         response = self.node.ai_client.chat.completions.create(
             model="llama3.2:3b",
             messages=[
@@ -305,7 +311,7 @@ class DBT_AI_Nav(Node):
         self.setup_behavior_tree()
         self.setup_sub_tree()
 
-        # Create a ROS timer to tick the behavior tree
+        # Create a ROS timer to tick the main behavior tree
         self.tree_timer = self.create_timer(0.5, self.tick_tree)
 
         # Initialize OpenAI Ollama client
@@ -332,6 +338,7 @@ class DBT_AI_Nav(Node):
         self.get_logger().info("Behavior Tree Setup Complete.")
 
     def setup_sub_tree(self):
+        # When this behavior tree is ticked, it creates a waypoint using 'next_north' and 'next_east'
         way_tree = py_trees.composites.Sequence("Sequence", memory=False)
         create_waypoint = CreateWaypoint(name="Create Waypoint", node=self)
         way_tree.add_children([create_waypoint])
