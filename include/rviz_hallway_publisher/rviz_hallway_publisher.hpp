@@ -9,7 +9,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 
-namespace onboarding_project
+namespace ai_agent_dbt
 {
 
 class RvizPublisher : public rclcpp::Node
@@ -39,6 +39,6 @@ private:
   Eigen::Vector2d move_second_up_or_down(Eigen::Vector2d line_dir, Eigen::Vector2d normal, double width);
 };
 
-} // namespace onboarding_project
+} // namespace ai_agent_dbt
 
 #endif

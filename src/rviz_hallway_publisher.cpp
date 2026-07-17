@@ -1,6 +1,6 @@
 #include "rviz_hallway_publisher.hpp"
 
-namespace onboarding_project {
+namespace ai_agent_dbt {
 
 RvizPublisher::RvizPublisher()
   : Node("rviz_hallway_publisher")
@@ -215,7 +215,7 @@ void RvizPublisher::publish_model() {
   model.ns = "stl";
   model.id = 99; 
   model.type = visualization_msgs::msg::Marker::MESH_RESOURCE;
-  model.mesh_resource = "package://onboarding_project/" + this->get_parameter("model_file").as_string();
+  model.mesh_resource = "package://ai_agent_dbt/" + this->get_parameter("model_file").as_string();
   model.action = visualization_msgs::msg::Marker::ADD;
   model.pose.position.x = 77.0; 
   model.pose.position.y = 40.0; 
@@ -228,11 +228,11 @@ void RvizPublisher::publish_model() {
   hallway_pub_->publish(model);
 }
 
-} // namespace onboarding_project
+} // namespace ai_agent_dbt
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
-  auto node = std::make_shared<onboarding_project::RvizPublisher>();
+  auto node = std::make_shared<ai_agent_dbt::RvizPublisher>();
   rclcpp::spin(node);
   return 0;
 }

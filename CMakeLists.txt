@@ -24,13 +24,6 @@ install(
   TARGETS rviz_hallway_publisher
   DESTINATION lib/${PROJECT_NAME})
 
-# --- Custom Maze Layout Node ---
-add_executable(custom_maze_node src/rviz_custom_maze.cpp)
-ament_target_dependencies(custom_maze_node rclcpp visualization_msgs)
-install(
-  TARGETS custom_maze_node
-  DESTINATION lib/${PROJECT_NAME})
-
 # --- Arena Publisher Node ---
 add_executable(rviz_arena_publisher src/rviz_arena_publisher.cpp)
 ament_target_dependencies(rviz_arena_publisher rclcpp visualization_msgs)
@@ -51,9 +44,8 @@ install(
 # --- Python Executables Installation Pipeline ---
 # CRITICAL FIX: Registered your baseline and hybrid behavior tree navigation scripts
 install(PROGRAMS
-  scripts/walls_sensor.py
-  scripts/BT_maze_navigator.py
-  scripts/BT_Ollama_maze_navigator.py
+  scripts/BT_Ollama_waypoint_navigator.py
+  scripts/BT_waypoint_navigator.py
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
