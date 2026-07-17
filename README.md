@@ -8,7 +8,7 @@ A pre-defined BT calls on an LLM (llama3.2 3b) to use a pre-defined sub-tree to 
 
 The environment consists of box that confines the UAV, containing 3 goals for the UAV to reach. There are 3 obstacles in the environment that the UAV must avoid to successfully complete the challange.
 
-[Video Demonstration]
+[Video Demonstration](https://youtu.be/fH5avKCXdoU)
 
 [Video Demonstration of no LLM](https://drive.google.com/file/d/1iiO69vEuZ35xmpbXOVsUuDfqjPxfFVYO/view?usp=sharing​)
 

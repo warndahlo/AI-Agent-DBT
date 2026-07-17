@@ -244,7 +244,7 @@ def query_llm(self, prompt):
                 {"role": "user", "content": prompt}
             ],
             temperature=0.0,
-            timeout=80.0 # If it takes too long to respond it cancels the prompt
+            timeout=40.0 # If it takes too long to respond it cancels the prompt
         )
         self.response = response.choices[0].message.content.strip()
     except Exception as e:

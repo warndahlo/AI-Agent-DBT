@@ -24,14 +24,6 @@ install(
   TARGETS rviz_hallway_publisher
   DESTINATION lib/${PROJECT_NAME})
 
-# --- Arena Publisher Node ---
-add_executable(rviz_arena_publisher src/rviz_arena_publisher.cpp)
-ament_target_dependencies(rviz_arena_publisher rclcpp visualization_msgs)
-install(TARGETS
-  rviz_arena_publisher
-  DESTINATION lib/${PROJECT_NAME}
-)
-
 # Install shared assets directories
 install(
   DIRECTORY resource
