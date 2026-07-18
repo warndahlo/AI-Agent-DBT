@@ -125,3 +125,25 @@ The main problem with this example is the limitations of a small LLM like Llama 
 In this scenario a deterministic algorithm is far better suited, but the structure of this code serves as a starting point for incorporating artificial intelligence and dynamic behavior trees together in a broader context. One of the advantages of using AI to control an agent like a UAV is it's ability to react to unexpected changes. With more development, the structure proposed here, or one similar to it, could be used in that context.
 
 There are directions to be explored with how the AI is incorporated in the BT structure serving different purposes like processing human input, managing a swarm of UAVs, etc. Training a model for a given environment is also likely to give better results. 
+
+## Relevant Works
+
+#### Behavior Tree Control with Autonomous Agents​
+
+Heppner, Georg, et al. "Behavior tree capabilities for dynamic multi-robot task allocation with heterogeneous robot teams." 2024 IEEE International Conference on Robotics and Automation (ICRA). IEEE, 2024.​
+
+Colledanchise, Michele, and Petter Ögren. Behavior trees in robotics and AI: An introduction. CRC Press, 2018.​
+
+Gil-Castilla, Miguel, Ivan Maza, and Anibal Ollero. "A Modular and Scalable Framework for Autonomous Actuation and Emergency Handling with Behavior Trees for Unmanned Aerial Vehicles." Journal of Intelligent & Robotic Systems 112.1 (2026): 27.​
+
+Wang, Chaoran, et al. "Task Management for Autonomous Flights of Micro Aerial Vehicles: A Behavior Tree Approach." 2023 6th International Symposium on Autonomous Systems (ISAS). IEEE, 2023.​
+
+#### AI Agents in Drone Control​
+
+ILYAS, Mohammad. "Artificial Intelligence for Drone Swarms." Journal of Systemics, Cybernetics and Informatics 23.7 (2025): 18-22.​
+
+#### AI Agents and Behavior Tree Hybrid Approach to Control​
+
+Wang, Chaoran, et al. "LLM-HBT: Dynamic Behavior Tree Construction for Adaptive Coordination in Heterogeneous Robots." arXiv preprint arXiv:2510.09963 (2025).​
+
+Zgurovsky, Michael, et al. "A hybrid approach based on swarm intelligence and behavior trees for coordinating autonomous agents." (2025).​
